@@ -4,6 +4,12 @@ The base skeleton for building whiteboard
 
 ## Development
 
+### Clone the repository
+
+```
+git clone git@github.com:ad1992/whiteboard-skeleton.git
+```
+
 ### Install all the dependencies
 
 Using `yarn`
