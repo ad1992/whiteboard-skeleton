@@ -1,6 +1,6 @@
 import { Element } from "./element";
 
-class CanvasScene {
+class Scene {
   private elements: readonly Element[];
   private canvas: HTMLCanvasElement;
 
@@ -15,7 +15,20 @@ class CanvasScene {
 
   replaceElements = (elements: Element[]) => {};
 
+  getElementMap = () => {
+    const elementsMap: { [key: string]: Element } = this.elements.reduce(
+      (res, ele) => {
+        return {
+          ...res,
+          [ele.id]: ele,
+        };
+      },
+      {}
+    );
+    return elementsMap;
+  };
+
   redraw = () => {};
 }
 
-export default CanvasScene;
+export default Scene;
