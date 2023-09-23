@@ -7,15 +7,19 @@ export interface Element {
   height: number;
 }
 
+const getId = () => {
+  return Date.now().toString(20) + Math.round(Math.random() * 100);
+};
+
 export const createRect = (props: {
   x: number;
   y: number;
   width: number;
   height: number;
 }): Element => {
-  const id = `rect-${Math.round(Math.random() * 100)}`;
+  const id = getId();
   const element: Element = { id, type: "rectangle", ...props };
-  return normalizeElement(element);
+  return element;
 };
 
 export const createEllipse = (props: {
@@ -24,9 +28,9 @@ export const createEllipse = (props: {
   width: number;
   height: number;
 }): Element => {
-  const id = `ellipse-${Math.round(Math.random() * 100)}`;
+  const id = getId();
   const element: Element = { id, type: "ellipse", ...props };
-  return normalizeElement(element);
+  return element;
 };
 
 export const getHitElement = (
