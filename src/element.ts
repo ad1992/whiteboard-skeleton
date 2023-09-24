@@ -5,6 +5,7 @@ export interface Element {
   y: number;
   width: number;
   height: number;
+  bgColor: string;
 }
 
 const getId = () => {
@@ -16,6 +17,7 @@ export const createRect = (props: {
   y: number;
   width: number;
   height: number;
+  bgColor: string;
 }): Element => {
   const id = getId();
   const element: Element = { id, type: "rectangle", ...props };
@@ -27,6 +29,7 @@ export const createEllipse = (props: {
   y: number;
   width: number;
   height: number;
+  bgColor: string;
 }): Element => {
   const id = getId();
   const element: Element = { id, type: "ellipse", ...props };
