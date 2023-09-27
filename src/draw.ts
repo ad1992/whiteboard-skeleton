@@ -6,7 +6,7 @@ const bgColors = [
   "#ffe3e3",
   "#ffa8a8",
   "#ffdeeb",
-  "#f3d9fa1",
+  "#f3d9fa",
   "#e599f7",
   "#e5dbff",
   "#b197fc",
@@ -27,7 +27,6 @@ const bgColors = [
   "#fff0f6",
   "#fff9db",
   "#f3f0ff",
-  "transparent",
 ];
 
 export const getBgColor = () => {
