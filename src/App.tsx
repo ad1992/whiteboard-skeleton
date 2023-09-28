@@ -15,7 +15,8 @@ type PointerDownState = {
 
 function App() {
   const [activeTool, setActiveTool] = useState<ActiveTool>("selection");
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const drawingCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const bgCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const pointerDownStateRef = useRef<PointerDownState | null>(null);
   const sceneRef = useRef<Scene | null>(null);
@@ -30,10 +31,10 @@ function App() {
   };
 
   useEffect(() => {
-    if (!canvasRef.current) {
+    if (!bgCanvasRef.current) {
       return;
     }
-    sceneRef.current = new Scene(canvasRef.current);
+    sceneRef.current = new Scene(bgCanvasRef.current);
   }, []);
 
   const onPointerDown = (event: React.PointerEvent) => {
@@ -48,7 +49,7 @@ function App() {
     console.log(pointerDownStateRef.current);
     if (
       !pointerDownStateRef.current ||
-      !canvasRef.current ||
+      !drawingCanvasRef.current ||
       !sceneRef.current
     ) {
       return;
@@ -59,9 +60,8 @@ function App() {
     if (activeTool === "rectangle") {
       const width = event.clientX - origin.x;
       const height = event.clientY - origin.y;
-      clearCanvas(canvasRef.current);
-      sceneRef.current.redraw();
-      drawRect(canvasRef.current, origin.x, origin.y, width, height);
+      clearCanvas(drawingCanvasRef.current);
+      drawRect(drawingCanvasRef.current, origin.x, origin.y, width, height);
     }
   };
 
@@ -70,10 +70,15 @@ function App() {
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerup", onPointerUp);
 
-    if (!pointerDownStateRef.current || !sceneRef.current) {
+    if (
+      !pointerDownStateRef.current ||
+      !sceneRef.current ||
+      !drawingCanvasRef.current
+    ) {
       return;
     }
     const { origin } = pointerDownStateRef.current;
+    clearCanvas(drawingCanvasRef.current);
 
     if (activeTool === "rectangle") {
       const width = event.clientX - origin.x;
@@ -88,15 +93,24 @@ function App() {
 
       sceneRef.current?.updateElements([rect]);
       console.log(rect, "RECTANGLE");
+      sceneRef.current.redraw();
     }
+    setActiveTool("selection");
   };
 
   return (
     <div className="whiteboard">
       <div className="canvas-container">
         <canvas
-          ref={canvasRef}
-          id="canvas"
+          ref={bgCanvasRef}
+          id="bg-canvas"
+          width={window.innerWidth}
+          height={window.innerHeight}
+          onPointerDown={onPointerDown}
+        />
+        <canvas
+          ref={drawingCanvasRef}
+          id="drawing-canvas"
           width={window.innerWidth}
           height={window.innerHeight}
           onPointerDown={onPointerDown}

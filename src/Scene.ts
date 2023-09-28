@@ -36,6 +36,7 @@ class Scene {
   };
 
   redraw = () => {
+    console.log("REDRAWWW");
     clearCanvas(this.canvas);
     this.elements.forEach((ele) => {
       if (ele.type === "rectangle") {
