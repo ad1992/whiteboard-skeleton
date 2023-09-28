@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "./App.scss";
 import ShapesToolBar, { ActiveTool } from "./ShapesToolBar";
 import { TrashIcon } from "./icons";
-import { clearCanvas, drawRect, drawSelectionBorder, tracePath } from "./draw";
+import { clearCanvas, drawRect } from "./draw";
 import Scene from "./Scene";
 import { createRect, getHitElement } from "./element";
 import { getBgColor } from "./colors";
@@ -24,7 +24,7 @@ function App() {
   const pointerDownStateRef = useRef<PointerDownState | null>(null);
   const sceneRef = useRef<Scene | null>(null);
 
-  const selectedElementIds = useRef<Array<string>>([]);
+  const lastCoords = useRef<{ x: number; y: number } | null>(null);
 
   const createPointerDownState = (event: React.PointerEvent) => {
     if (!sceneRef.current) {
@@ -37,6 +37,11 @@ function App() {
       },
       bgColor: getBgColor(),
       selectedElementIds: [],
+    };
+
+    lastCoords.current = {
+      x: event.clientX,
+      y: event.clientY,
     };
 
     const hitElement = getHitElement(sceneRef.current?.getElements(), {
@@ -64,16 +69,21 @@ function App() {
 
   const onPointerMove = (event: PointerEvent) => {
     console.log("on pointer move");
+    console.log("LAST COORDS", lastCoords.current);
     console.log(pointerDownStateRef.current);
     if (
       !pointerDownStateRef.current ||
       !drawingCanvasRef.current ||
-      !sceneRef.current
+      !sceneRef.current ||
+      !lastCoords.current
     ) {
       return;
     }
     const { origin, bgColor } = pointerDownStateRef.current;
     console.log(sceneRef.current?.getElements(), "ELEMENTS");
+
+    const dx = event.clientX - lastCoords.current.x;
+    const dy = event.clientY - lastCoords.current.y;
 
     if (activeTool === "rectangle") {
       const width = event.clientX - origin.x;
@@ -83,6 +93,26 @@ function App() {
         bgColor,
       });
     }
+
+    console.log("DX = ", dx, "DY =", dy);
+    if (
+      activeTool === "selection" &&
+      pointerDownStateRef.current.selectedElementIds.length
+    ) {
+      const elementMap = sceneRef.current.getElementMap();
+      pointerDownStateRef.current.selectedElementIds.forEach((id) => {
+        const ele = elementMap[id];
+        Object.assign(ele, {
+          x: ele.x + dx,
+          y: ele.y + dy,
+        });
+      });
+      sceneRef.current.redraw(pointerDownStateRef.current.selectedElementIds);
+    }
+    lastCoords.current = {
+      x: event.clientX,
+      y: event.clientY,
+    };
   };
 
   const onPointerUp = (event: PointerEvent) => {
@@ -124,7 +154,7 @@ function App() {
 
       sceneRef.current?.updateElements([rect]);
       console.log(rect, "RECTANGLE");
-      sceneRef.current.redraw(selectedElementIds.current);
+      sceneRef.current.redraw(pointerDownStateRef.current.selectedElementIds);
     }
 
     setActiveTool("selection");
