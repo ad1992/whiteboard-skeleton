@@ -2,6 +2,17 @@
 
 import { SELECTION_COLOR } from "./colors";
 
+export const drawRect = (
+  canvas: HTMLCanvasElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) => {
+  const ctx = canvas.getContext("2d")!;
+  ctx.strokeRect(x, y, width, height);
+};
+
 export const clearCanvas = (canvas: HTMLCanvasElement) => {
   const ctx = canvas.getContext("2d")!;
   ctx.clearRect(0, 0, canvas.width, canvas.height);

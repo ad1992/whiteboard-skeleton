@@ -1,3 +1,4 @@
+import { clearCanvas, drawRect } from "./draw";
 import { Element } from "./element";
 
 class Scene {
@@ -9,11 +10,17 @@ class Scene {
     this.canvas = canvas;
   }
 
-  getElements = () => {};
+  getElements = () => {
+    return this.elements;
+  };
 
-  updateElements = (newElements: Element[]) => {};
+  updateElements = (newElements: Element[]) => {
+    this.elements = [...this.elements, ...newElements];
+  };
 
-  replaceElements = (elements: Element[]) => {};
+  replaceElements = (elements: Element[]) => {
+    this.elements = elements;
+  };
 
   getElementMap = () => {
     const elementsMap: { [key: string]: Element } = this.elements.reduce(
@@ -28,7 +35,14 @@ class Scene {
     return elementsMap;
   };
 
-  redraw = () => {};
+  redraw = () => {
+    clearCanvas(this.canvas);
+    this.elements.forEach((ele) => {
+      if (ele.type === "rectangle") {
+        drawRect(this.canvas, ele.x, ele.y, ele.width, ele.height);
+      }
+    });
+  };
 }
 
 export default Scene;
