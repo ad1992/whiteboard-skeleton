@@ -1,4 +1,4 @@
-import { clearCanvas, drawRect } from "./draw";
+import { clearCanvas, drawRect, drawSelectionBorder } from "./draw";
 import { Element } from "./element";
 
 class Scene {
@@ -35,7 +35,7 @@ class Scene {
     return elementsMap;
   };
 
-  redraw = () => {
+  redraw = (selectedElementIds: Array<string>) => {
     console.log("REDRAWWW");
     clearCanvas(this.canvas);
     this.elements.forEach((ele) => {
@@ -43,6 +43,9 @@ class Scene {
         drawRect(this.canvas, ele.x, ele.y, ele.width, ele.height, {
           bgColor: ele.bgColor,
         });
+      }
+      if (selectedElementIds.includes(ele.id)) {
+        drawSelectionBorder(this.canvas, ele.x, ele.y, ele.width, ele.height);
       }
     });
   };

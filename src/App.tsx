@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import "./App.scss";
 import ShapesToolBar, { ActiveTool } from "./ShapesToolBar";
 import { TrashIcon } from "./icons";
-import { clearCanvas, drawRect } from "./draw";
+import { clearCanvas, drawRect, drawSelectionBorder, tracePath } from "./draw";
 import Scene from "./Scene";
-import { createRect } from "./element";
+import { createRect, getHitElement } from "./element";
 import { getBgColor } from "./colors";
 
 type PointerDownState = {
@@ -13,6 +13,7 @@ type PointerDownState = {
     y: number;
   };
   bgColor: string;
+  selectedElementIds: Array<string>;
 };
 
 function App() {
@@ -23,14 +24,28 @@ function App() {
   const pointerDownStateRef = useRef<PointerDownState | null>(null);
   const sceneRef = useRef<Scene | null>(null);
 
+  const selectedElementIds = useRef<Array<string>>([]);
+
   const createPointerDownState = (event: React.PointerEvent) => {
+    if (!sceneRef.current) {
+      return;
+    }
     pointerDownStateRef.current = {
       origin: {
         x: event.clientX,
         y: event.clientY,
       },
       bgColor: getBgColor(),
+      selectedElementIds: [],
     };
+
+    const hitElement = getHitElement(sceneRef.current?.getElements(), {
+      x: event.clientX,
+      y: event.clientY,
+    });
+    if (hitElement) {
+      pointerDownStateRef.current.selectedElementIds = [hitElement.id];
+    }
   };
 
   useEffect(() => {
@@ -85,6 +100,17 @@ function App() {
     const { origin, bgColor } = pointerDownStateRef.current;
     clearCanvas(drawingCanvasRef.current);
 
+    const dx = event.clientX - origin.x;
+    const dy = event.clientY - origin.y;
+    const dist = Math.hypot(dx, dy);
+    console.log("distance", dist);
+
+    if (dist > 5) {
+      pointerDownStateRef.current.selectedElementIds = [];
+    } else {
+      sceneRef.current.redraw(pointerDownStateRef.current.selectedElementIds);
+    }
+
     if (activeTool === "rectangle") {
       const width = event.clientX - origin.x;
       const height = event.clientY - origin.y;
@@ -98,8 +124,9 @@ function App() {
 
       sceneRef.current?.updateElements([rect]);
       console.log(rect, "RECTANGLE");
-      sceneRef.current.redraw();
+      sceneRef.current.redraw(selectedElementIds.current);
     }
+
     setActiveTool("selection");
   };
 

@@ -39,7 +39,17 @@ export const createEllipse = (props: {
 export const getHitElement = (
   elements: readonly Element[],
   coords: { x: number; y: number }
-) => {};
+) => {
+  const reversedElements = elements.slice().reverse();
+  return reversedElements.find((ele) => {
+    return (
+      coords.x >= ele.x &&
+      coords.x <= ele.x + ele.width &&
+      coords.y >= ele.y &&
+      coords.y <= ele.y + ele.height
+    );
+  });
+};
 
 export const normalizeElement = (ele: Element) => {
   const updatedElement = { ...ele };
