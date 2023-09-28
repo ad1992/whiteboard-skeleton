@@ -40,7 +40,9 @@ class Scene {
     clearCanvas(this.canvas);
     this.elements.forEach((ele) => {
       if (ele.type === "rectangle") {
-        drawRect(this.canvas, ele.x, ele.y, ele.width, ele.height);
+        drawRect(this.canvas, ele.x, ele.y, ele.width, ele.height, {
+          bgColor: ele.bgColor,
+        });
       }
     });
   };

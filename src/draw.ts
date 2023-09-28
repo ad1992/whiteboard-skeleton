@@ -7,10 +7,15 @@ export const drawRect = (
   x: number,
   y: number,
   width: number,
-  height: number
+  height: number,
+  opts: {
+    bgColor: string;
+  }
 ) => {
   const ctx = canvas.getContext("2d")!;
-  ctx.strokeRect(x, y, width, height);
+  ctx.fillStyle = opts.bgColor;
+
+  ctx.fillRect(x, y, width, height);
 };
 
 export const clearCanvas = (canvas: HTMLCanvasElement) => {

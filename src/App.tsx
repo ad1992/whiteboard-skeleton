@@ -5,12 +5,14 @@ import { TrashIcon } from "./icons";
 import { clearCanvas, drawRect } from "./draw";
 import Scene from "./Scene";
 import { createRect } from "./element";
+import { getBgColor } from "./colors";
 
 type PointerDownState = {
   origin: {
     x: number;
     y: number;
   };
+  bgColor: string;
 };
 
 function App() {
@@ -27,6 +29,7 @@ function App() {
         x: event.clientX,
         y: event.clientY,
       },
+      bgColor: getBgColor(),
     };
   };
 
@@ -54,14 +57,16 @@ function App() {
     ) {
       return;
     }
-    const { origin } = pointerDownStateRef.current;
+    const { origin, bgColor } = pointerDownStateRef.current;
     console.log(sceneRef.current?.getElements(), "ELEMENTS");
 
     if (activeTool === "rectangle") {
       const width = event.clientX - origin.x;
       const height = event.clientY - origin.y;
       clearCanvas(drawingCanvasRef.current);
-      drawRect(drawingCanvasRef.current, origin.x, origin.y, width, height);
+      drawRect(drawingCanvasRef.current, origin.x, origin.y, width, height, {
+        bgColor,
+      });
     }
   };
 
@@ -77,7 +82,7 @@ function App() {
     ) {
       return;
     }
-    const { origin } = pointerDownStateRef.current;
+    const { origin, bgColor } = pointerDownStateRef.current;
     clearCanvas(drawingCanvasRef.current);
 
     if (activeTool === "rectangle") {
@@ -88,7 +93,7 @@ function App() {
         y: origin.y,
         width,
         height,
-        bgColor: "transparent",
+        bgColor,
       });
 
       sceneRef.current?.updateElements([rect]);
