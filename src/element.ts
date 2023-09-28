@@ -21,7 +21,7 @@ export const createRect = (props: {
 }): Element => {
   const id = getId();
   const element: Element = { id, type: "rectangle", ...props };
-  return element;
+  return normalizeElement(element);
 };
 
 export const createEllipse = (props: {
