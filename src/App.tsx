@@ -6,6 +6,7 @@ import { clearCanvas, drawRect } from "./draw";
 import Scene from "./Scene";
 import { createRect, getHitElement } from "./element";
 import { getBgColor } from "./colors";
+import { viewportCoordsToSceneCoords } from "./utils";
 
 type PointerDownState = {
   origin: {
@@ -25,6 +26,11 @@ function App() {
   const sceneRef = useRef<Scene | null>(null);
 
   const lastCoords = useRef<{ x: number; y: number } | null>(null);
+
+  const scrollRef = useRef<{ scrollX: number; scrollY: number }>({
+    scrollX: 0,
+    scrollY: 0,
+  });
 
   const createPointerDownState = (event: React.PointerEvent) => {
     if (!sceneRef.current) {
@@ -138,15 +144,23 @@ function App() {
     if (dist > 5) {
       pointerDownStateRef.current.selectedElementIds = [];
     } else {
-      sceneRef.current.redraw(pointerDownStateRef.current.selectedElementIds);
+      sceneRef.current.redraw(
+        pointerDownStateRef.current.selectedElementIds,
+        scrollRef.current
+      );
     }
 
     if (activeTool === "rectangle") {
       const width = event.clientX - origin.x;
       const height = event.clientY - origin.y;
+      const { sceneX, sceneY } = viewportCoordsToSceneCoords(
+        origin.x,
+        origin.y,
+        scrollRef.current
+      );
       const rect = createRect({
-        x: origin.x,
-        y: origin.y,
+        x: sceneX,
+        y: sceneY,
         width,
         height,
         bgColor,
@@ -154,10 +168,28 @@ function App() {
 
       sceneRef.current?.updateElements([rect]);
       console.log(rect, "RECTANGLE");
-      sceneRef.current.redraw(pointerDownStateRef.current.selectedElementIds);
+      sceneRef.current.redraw(
+        pointerDownStateRef.current.selectedElementIds,
+        scrollRef.current
+      );
     }
 
     setActiveTool("selection");
+  };
+
+  const onWheel = (event: React.WheelEvent) => {
+    console.log(event.deltaX, event.deltaY, "WHEEL");
+    if (!pointerDownStateRef.current) {
+      return;
+    }
+    const { deltaX, deltaY } = event;
+    scrollRef.current.scrollX -= deltaX;
+    scrollRef.current.scrollY -= deltaY;
+    sceneRef.current?.redraw(
+      pointerDownStateRef.current?.selectedElementIds,
+      scrollRef.current
+    );
+    console.log(scrollRef.current, "SCROLL");
   };
 
   return (
@@ -176,6 +208,7 @@ function App() {
           width={window.innerWidth}
           height={window.innerHeight}
           onPointerDown={onPointerDown}
+          onWheel={onWheel}
         />
       </div>
       <ShapesToolBar

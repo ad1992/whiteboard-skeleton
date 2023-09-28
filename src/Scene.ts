@@ -1,5 +1,6 @@
 import { clearCanvas, drawRect, drawSelectionBorder } from "./draw";
 import { Element } from "./element";
+import { sceneCoordsToViewportCoords } from "./utils";
 
 class Scene {
   private elements: readonly Element[];
@@ -35,17 +36,31 @@ class Scene {
     return elementsMap;
   };
 
-  redraw = (selectedElementIds: Array<string>) => {
-    console.log("REDRAWWW");
+  redraw = (
+    selectedElementIds: Array<string>,
+    opts: { scrollX: number; scrollY: number }
+  ) => {
+    console.log("REDRAWWW", opts);
     clearCanvas(this.canvas);
     this.elements.forEach((ele) => {
+      const { clientX, clientY } = sceneCoordsToViewportCoords(
+        ele.x,
+        ele.y,
+        opts
+      );
       if (ele.type === "rectangle") {
-        drawRect(this.canvas, ele.x, ele.y, ele.width, ele.height, {
+        drawRect(this.canvas, clientX, clientY, ele.width, ele.height, {
           bgColor: ele.bgColor,
         });
       }
       if (selectedElementIds.includes(ele.id)) {
-        drawSelectionBorder(this.canvas, ele.x, ele.y, ele.width, ele.height);
+        drawSelectionBorder(
+          this.canvas,
+          clientX,
+          clientY,
+          ele.width,
+          ele.height
+        );
       }
     });
   };
